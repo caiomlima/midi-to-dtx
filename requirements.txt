@@ -1,0 +1,20 @@
+# Núcleo (sempre necessário)
+numpy
+scipy
+librosa
+soundfile
+pretty_midi
+pymupdf          # renderização de PDF -> imagem (necessário p/ partituras em PDF)
+
+# MusicXML: parser nativo (xml.etree), sem dependências extras.
+# music21 é opcional (útil p/ inspeção avançada), mas o parser embutido já cobre
+# partituras partwise do MuseScore/Finale/Sibelius.
+
+# Opcional: só para --bgm isolated (demucs remove a bateria do áudio)
+# demucs
+
+# Opcional: só para partituras em PDF (OMR experimental)
+# oemer
+# onnxruntime-gpu   (o oemer usa; em caso de erro de ConvTranspose, fixe onnxruntime-gpu==1.20.2)
+
+# ffmpeg/ffprobe precisam estar no PATH (não é pacote pip).

@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
 import xml.etree.ElementTree as ET
 
-from core.mapping import map_pitch, unmapped_name
+from mapping import map_pitch, unmapped_name
 
 Q_RES = 192
 
@@ -99,7 +99,7 @@ def _musicxml_path(path: Path, work: Optional[Path]) -> Path:
         if root is None or root not in names:
             cands = [n for n in names if n.lower().endswith((".xml",)) and "container" not in n.lower()]
             if not cands:
-                raise ScoreError(f"Não encontrei o MusicXML dentro de {path.name}.")
+                raise ScoreError(f"NÃ£o encontrei o MusicXML dentro de {path.name}.")
             root = cands[0]
         out = work / (Path(root).stem + ".musicxml")
         out.write_bytes(zf.read(root))
@@ -115,7 +115,7 @@ def _pick_xml_drum_part(root: ET.Element, part_hint: Optional[str]) -> Tuple[ET.
     partlist = root.find("part-list")
     score_parts = list(partlist.findall("score-part")) if partlist is not None else []
     if not score_parts:
-        raise ScoreError("O MusicXML não tem nenhuma parte (<score-part>).")
+        raise ScoreError("O MusicXML nÃ£o tem nenhuma parte (<score-part>).")
 
     infos = []
     for sp in score_parts:
@@ -154,7 +154,7 @@ def _pick_xml_drum_part(root: ET.Element, part_hint: Optional[str]) -> Tuple[ET.
                     chosen = inf
                     break
             if chosen is None:
-                raise ScoreError(f"--part '{part_hint}' não encontrado. Partes disponíveis: "
+                raise ScoreError(f"--part '{part_hint}' nÃ£o encontrado. Partes disponÃ­veis: "
                                  + ", ".join(i["name"] or i["id"] for i in infos))
     else:
         drums = [i for i in infos if i["is_drum"]]
@@ -162,21 +162,21 @@ def _pick_xml_drum_part(root: ET.Element, part_hint: Optional[str]) -> Tuple[ET.
             chosen = drums[0]
         elif len(drums) > 1:
             chosen = drums[0]
-            warnings.append(f"Encontrei {len(drums)} partes de percussão "
+            warnings.append(f"Encontrei {len(drums)} partes de percussÃ£o "
                             f"({', '.join(i['name'] or i['id'] for i in drums)}); usando a primeira. "
                             "Use --part para escolher.")
         elif len(infos) == 1:
             chosen = infos[0]
-            warnings.append("Não identifiquei uma parte de bateria pelo nome/instrumento; "
-                            "usando a única parte disponível.")
+            warnings.append("NÃ£o identifiquei uma parte de bateria pelo nome/instrumento; "
+                            "usando a Ãºnica parte disponÃ­vel.")
         else:
-            raise ScoreError("Não encontrei uma parte de bateria/percussão. Partes disponíveis: "
+            raise ScoreError("NÃ£o encontrei uma parte de bateria/percussÃ£o. Partes disponÃ­veis: "
                              + ", ".join(i["name"] or i["id"] for i in infos)
-                             + ". Use --part <nome ou nº> para escolher.")
+                             + ". Use --part <nome ou nÂº> para escolher.")
 
     parts = {p.get("id"): p for p in root.findall("part")}
     if chosen["id"] not in parts:
-        raise ScoreError(f"A parte '{chosen['id']}' não existe no corpo do MusicXML.")
+        raise ScoreError(f"A parte '{chosen['id']}' nÃ£o existe no corpo do MusicXML.")
     return parts[chosen["id"]], chosen["inst_pitch"], warnings
 
 
@@ -213,8 +213,8 @@ def _xml_tempo(part: ET.Element, root: ET.Element, warnings: List[str]) -> Optio
         return None
     if len(set(round(b) for b in bpms)) > 1:
         warnings.append(f"A partitura tem {len(set(bpms))} andamentos diferentes; usando o primeiro "
-                        f"({bpms[0]:g}). O chart gerado usa BPM constante — se a música tem "
-                        "mudanças de tempo, passe --bpm e confira a sincronização.")
+                        f"({bpms[0]:g}). O chart gerado usa BPM constante â€” se a mÃºsica tem "
+                        "mudanÃ§as de tempo, passe --bpm e confira a sincronizaÃ§Ã£o.")
     return bpms[0]
 
 
@@ -229,15 +229,15 @@ def _xml_time_signature(part: ET.Element, warnings: List[str]) -> int:
         except (TypeError, ValueError):
             pass
     if not sigs:
-        warnings.append("Sem fórmula de compasso na partitura; usando 4/4.")
+        warnings.append("Sem fÃ³rmula de compasso na partitura; usando 4/4.")
         return 4
     if len(sigs) > 1:
-        warnings.append("A partitura tem mais de uma fórmula de compasso "
+        warnings.append("A partitura tem mais de uma fÃ³rmula de compasso "
                         f"({', '.join(f'{n}/{d}' for n, d in sigs)}); usando a primeira "
-                        f"({sigs[0][0]}/{sigs[0][1]}). Confira a sincronização.")
+                        f"({sigs[0][0]}/{sigs[0][1]}). Confira a sincronizaÃ§Ã£o.")
     num, den = sigs[0]
     if den != 4:
-        warnings.append(f"Fórmula de compasso {num}/{den}: as posições são medidas em semínimas; "
+        warnings.append(f"FÃ³rmula de compasso {num}/{den}: as posiÃ§Ãµes sÃ£o medidas em semÃ­nimas; "
                         "confira --beats-per-bar e o BPM gerado.")
     return num
 
@@ -250,8 +250,8 @@ def _load_musicxml(path: Path, part_hint: Optional[str], work: Optional[Path]) -
         raise ScoreError(f"Falha ao ler o MusicXML {xml_path.name}: {e}")
     if root.tag != "score-partwise":
         if root.tag == "score-timewise":
-            raise ScoreError("MusicXML timewise não suportado; exporte como partwise.")
-        raise ScoreError(f"Arquivo não parece um MusicXML (raiz <{root.tag}>).")
+            raise ScoreError("MusicXML timewise nÃ£o suportado; exporte como partwise.")
+        raise ScoreError(f"Arquivo nÃ£o parece um MusicXML (raiz <{root.tag}>).")
 
     part, inst_pitch, warnings = _pick_xml_drum_part(root, part_hint)
     sc = Score()
@@ -310,7 +310,7 @@ def _load_musicxml(path: Path, part_hint: Optional[str], work: Optional[Path]) -
     sc.events = _dedup_sort(sc.events)
     if not sc.events:
         raise ScoreError("Nenhuma nota de bateria reconhecida na parte selecionada. Verifique se a "
-                         "parte é a bateria (use --part) e se as notas usam pitches do General MIDI "
+                         "parte Ã© a bateria (use --part) e se as notas usam pitches do General MIDI "
                          "drum map (35-81) ou <midi-unpitched>.")
 
     sc.bpm = _xml_tempo(part, root, sc.warnings)
@@ -325,7 +325,7 @@ def _load_midi(path: Path, track_hint: Optional[str]) -> Score:
     try:
         import pretty_midi
     except ImportError:
-        raise ScoreError("pretty_midi não encontrado (necessário para MIDI). "
+        raise ScoreError("pretty_midi nÃ£o encontrado (necessÃ¡rio para MIDI). "
                          "Instale com: pip install pretty_midi")
     try:
         pm = pretty_midi.PrettyMIDI(str(path))
@@ -334,7 +334,7 @@ def _load_midi(path: Path, track_hint: Optional[str]) -> Score:
 
     insts = pm.instruments
     if not insts:
-        raise ScoreError("O MIDI não tem trilhas.")
+        raise ScoreError("O MIDI nÃ£o tem trilhas.")
 
     sc = Score()
     inst = None
@@ -351,7 +351,7 @@ def _load_midi(path: Path, track_hint: Optional[str]) -> Score:
                     inst = i
                     break
             if inst is None:
-                raise ScoreError(f"--track '{track_hint}' não encontrada. Trilhas: "
+                raise ScoreError(f"--track '{track_hint}' nÃ£o encontrada. Trilhas: "
                                  + ", ".join(i.name or "?" for i in insts))
     else:
         drums = [i for i in insts if i.is_drum]
@@ -359,7 +359,7 @@ def _load_midi(path: Path, track_hint: Optional[str]) -> Score:
             inst = drums[0]
         elif len(drums) > 1:
             inst = max(drums, key=lambda i: len(i.notes))
-            sc.warnings.append(f"MIDI com {len(drums)} trilhas de percussão; usando "
+            sc.warnings.append(f"MIDI com {len(drums)} trilhas de percussÃ£o; usando "
                                f"'{inst.name or '?'}'. Use --track para escolher outra.")
         elif len(insts) == 1:
             inst = insts[0]
@@ -367,20 +367,20 @@ def _load_midi(path: Path, track_hint: Optional[str]) -> Score:
             scored = sorted(((sum(1 for n in i.notes if map_pitch(n.pitch)), i) for i in insts),
                             key=lambda x: -x[0])
             if not scored or scored[0][0] == 0:
-                raise ScoreError("Não encontrei nenhuma nota de bateria GM no MIDI. Trilhas: "
+                raise ScoreError("NÃ£o encontrei nenhuma nota de bateria GM no MIDI. Trilhas: "
                                  + ", ".join(i.name or "?" for i in insts))
             inst = scored[0][1]
-            sc.warnings.append(f"Nenhuma trilha marcada como percussão; usando '{inst.name or '?'}' "
+            sc.warnings.append(f"Nenhuma trilha marcada como percussÃ£o; usando '{inst.name or '?'}' "
                                "(mais notas de bateria). Use --track para escolher outra.")
 
     times, bpms = pm.get_tempo_changes()
     bpm = float(bpms[0]) if len(bpms) else None
     if bpm and (bpm < 20 or bpm > 350):
-        sc.warnings.append(f"BPM {bpm:g} do MIDI parece inválido; ignorando (passe --bpm).")
+        sc.warnings.append(f"BPM {bpm:g} do MIDI parece invÃ¡lido; ignorando (passe --bpm).")
         bpm = None
     if bpm and len(bpms) > 1 and (max(bpms) - min(bpms)) > 2:
-        sc.warnings.append(f"O MIDI tem mudanças de andamento; usando o BPM inicial ({bpm:g}). "
-                           "Confira a sincronização ou passe --bpm.")
+        sc.warnings.append(f"O MIDI tem mudanÃ§as de andamento; usando o BPM inicial ({bpm:g}). "
+                           "Confira a sincronizaÃ§Ã£o ou passe --bpm.")
     sc.bpm = bpm
 
     try:
@@ -388,7 +388,7 @@ def _load_midi(path: Path, track_hint: Optional[str]) -> Score:
         if ts_changes:
             sigs = list(dict.fromkeys((t.numerator, t.denominator) for t in ts_changes))
             if len(sigs) > 1:
-                sc.warnings.append("O MIDI tem mais de uma fórmula de compasso "
+                sc.warnings.append("O MIDI tem mais de uma fÃ³rmula de compasso "
                                    f"({', '.join(f'{n}/{d}' for n, d in sigs)}); usando a primeira.")
             sc.beats_per_bar = int(sigs[0][0])
     except Exception:
@@ -399,7 +399,7 @@ def _load_midi(path: Path, track_hint: Optional[str]) -> Score:
         if lane is None:
             _add_unmapped(sc, n.pitch)
             continue
-        # pretty_midi: tick / resolution = semínimas (quarters)
+        # pretty_midi: tick / resolution = semÃ­nimas (quarters)
         sc.events.append(NoteEvent(quarter=_quantize(pm.time_to_tick(n.start) / pm.resolution),
                                    lane=lane))
     sc.events = _dedup_sort(sc.events)
@@ -416,7 +416,7 @@ def pdf_to_pages(pdf: Path, work: Path) -> List[Path]:
         try:
             import fitz as pymupdf
         except ImportError:
-            raise ScoreError("pymupdf não encontrado (necessário para PDF). "
+            raise ScoreError("pymupdf nÃ£o encontrado (necessÃ¡rio para PDF). "
                              "Instale com: pip install pymupdf")
     doc = pymupdf.open(str(pdf))
     pages: List[Path] = []
@@ -428,7 +428,7 @@ def pdf_to_pages(pdf: Path, work: Path) -> List[Path]:
         pages.append(out)
     doc.close()
     if not pages:
-        raise ScoreError(f"O PDF {pdf.name} não tem páginas.")
+        raise ScoreError(f"O PDF {pdf.name} nÃ£o tem pÃ¡ginas.")
     return pages
 
 
@@ -436,27 +436,27 @@ def omer_page(img: Path, out_base: Path) -> Optional[Path]:
     try:
         import oemer  # noqa: F401
     except ImportError:
-        raise ScoreError("oemer não encontrado (necessário para PDF). Instale com: pip install oemer\n"
-                         "Obs.: o OMR do oemer é experimental para percussão; o caminho recomendado é "
+        raise ScoreError("oemer nÃ£o encontrado (necessÃ¡rio para PDF). Instale com: pip install oemer\n"
+                         "Obs.: o OMR do oemer Ã© experimental para percussÃ£o; o caminho recomendado Ã© "
                          "abrir o PDF no MuseScore e exportar MusicXML.")
     for cand in (Path(str(out_base) + ".musicxml"), Path(str(out_base) + ".xml")):
         if cand.exists():
-            log(f"  (reaproveitando OMR já convertido: {cand.name})")
+            log(f"  (reaproveitando OMR jÃ¡ convertido: {cand.name})")
             return cand
     log(f"  Convertendo {img.name} -> MusicXML com oemer (experimental, pode levar minutos)...")
     out_file = Path(str(out_base) + ".musicxml")
     out_file.parent.mkdir(parents=True, exist_ok=True)
     oemer_exe = shutil.which("oemer")
     cmd = [oemer_exe] if oemer_exe else [sys.executable, "-m", "oemer"]
-    # o oemer trata -o como pasta se não terminar em .musicxml
+    # o oemer trata -o como pasta se nÃ£o terminar em .musicxml
     r = subprocess.run(cmd + [str(img), "-o", str(out_file)], capture_output=True, text=True)
     if r.returncode != 0:
         tail = (r.stderr or r.stdout or "")[-800:]
-        raise ScoreError(f"oemer falhou em {img.name} (código {r.returncode}):\n{tail}")
+        raise ScoreError(f"oemer falhou em {img.name} (cÃ³digo {r.returncode}):\n{tail}")
     for cand in (out_file, Path(str(out_base) + ".xml")):
         if cand.exists():
             return cand
-    raise ScoreError(f"oemer terminou mas não gerou MusicXML para {img.name}.")
+    raise ScoreError(f"oemer terminou mas nÃ£o gerou MusicXML para {img.name}.")
 
 
 def _merge_page(base: Score, page: Score, start_quarter: Fraction) -> None:
@@ -478,27 +478,27 @@ def _load_pdf(pdf: Path, work: Path, part_hint: Optional[str]) -> Score:
                 msg = str(e)
                 if "bateria" in msg.lower():
                     msg += ("\n  Dica: o OMR costuma ler partituras de bateria como se fossem "
-                            "notas com altura (ex.: parte 'Piano' com F4/C5/G5 nas posições do "
-                            "pentagrama). O caminho confiável para PDF é abrir no MuseScore e "
+                            "notas com altura (ex.: parte 'Piano' com F4/C5/G5 nas posiÃ§Ãµes do "
+                            "pentagrama). O caminho confiÃ¡vel para PDF Ã© abrir no MuseScore e "
                             "exportar MusicXML, ou usar o MIDI exportado pelo editor.")
                 raise ScoreError(msg)
-            log(f"  AVISO: página {i + 1} não rendeu notas ({str(e).splitlines()[0]}); ignorada.")
+            log(f"  AVISO: pÃ¡gina {i + 1} nÃ£o rendeu notas ({str(e).splitlines()[0]}); ignorada.")
             continue
         if base is None:
             base = page
         else:
             _merge_page(base, page, cursor)
-        # próxima página continua no início do compasso seguinte ao fim desta
+        # prÃ³xima pÃ¡gina continua no inÃ­cio do compasso seguinte ao fim desta
         bar_q = page.beats_per_bar or 4
         end_local = page.quarter_end()
         cursor += Fraction(math.ceil(float(end_local) / bar_q) * bar_q)
     if base is None:
-        raise ScoreError("Nenhuma página do PDF rendeu notas de bateria. O OMR de percussão é "
+        raise ScoreError("Nenhuma pÃ¡gina do PDF rendeu notas de bateria. O OMR de percussÃ£o Ã© "
                          "experimental; recomenda-se abrir o PDF no MuseScore e exportar MusicXML.")
     base.events = _dedup_sort(base.events)
     if len(pages) > 1:
-        base.warnings.append(f"PDF com {len(pages)} páginas mescladas: cada página foi alinhada no "
-                             "início de compasso. Confira se nenhuma página quebra compassos no meio.")
+        base.warnings.append(f"PDF com {len(pages)} pÃ¡ginas mescladas: cada pÃ¡gina foi alinhada no "
+                             "inÃ­cio de compasso. Confira se nenhuma pÃ¡gina quebra compassos no meio.")
     return base
 
 
@@ -509,8 +509,8 @@ def _check_close_notes(sc: Score) -> None:
         if sc.events[i].lane == sc.events[i - 1].lane and 0 < d < Fraction(1, 32):
             dup += 1
     if dup > 4:
-        sc.warnings.append(f"{dup} pares de notas muito próximas na mesma lane — a grade do DTX "
-                           "pode arredondá-las. Confira vozes duplicadas na partitura.")
+        sc.warnings.append(f"{dup} pares de notas muito prÃ³ximas na mesma lane â€” a grade do DTX "
+                           "pode arredondÃ¡-las. Confira vozes duplicadas na partitura.")
 
 
 def load_score(path: Path, work: Optional[Path] = None, part_hint: Optional[str] = None,
@@ -521,8 +521,8 @@ def load_score(path: Path, work: Optional[Path] = None, part_hint: Optional[str]
         if work is None:
             raise ScoreError("PDF precisa de uma pasta de trabalho (--out cria uma automaticamente).")
         sc = _load_pdf(path, work, part_hint or track_hint)
-        sc.warnings.append("Partitura vinda de OMR (PDF): confira as notas com atenção — "
-                           "o reconhecimento de percussão do oemer é experimental.")
+        sc.warnings.append("Partitura vinda de OMR (PDF): confira as notas com atenÃ§Ã£o â€” "
+                           "o reconhecimento de percussÃ£o do oemer Ã© experimental.")
         _check_close_notes(sc)
         return sc
 
@@ -531,7 +531,7 @@ def load_score(path: Path, work: Optional[Path] = None, part_hint: Optional[str]
     elif suffix in (".musicxml", ".xml", ".mxl"):
         sc = _load_musicxml(path, part_hint or track_hint, work)
     else:
-        raise ScoreError(f"Formato de partitura não suportado: {suffix} "
+        raise ScoreError(f"Formato de partitura nÃ£o suportado: {suffix} "
                          "(use .musicxml, .xml, .mxl, .mid, .midi ou .pdf)")
 
     _check_close_notes(sc)

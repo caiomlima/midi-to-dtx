@@ -1,7 +1,4 @@
-﻿﻿#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import math
@@ -13,14 +10,14 @@ from typing import Optional
 
 import soundfile as sf
 
-from core.dtxkit import (CmdError, TICKS_PER_BEAT, die, extract_audio, log, make_bgm,
+from dtxkit import (CmdError, TICKS_PER_BEAT, die, extract_audio, log, make_bgm,
                     make_chart_from_events, make_preview, make_preview_image,
                     prepare_samples, prepare_video, probe, safe_name,
                     separate_drums, video_info, write_dtx)
-from core.difficulty import estimate_level, parse_level_arg
-from core.mapping import LANES, LANE_NAME, unmapped_name
-from core.sheet_process import ScoreError, load_score, quantize_events_to_grid, suggest_grid_div
-from core.align import align_score
+from difficulty import estimate_level, parse_level_arg
+from mapping import LANES, LANE_NAME, unmapped_name
+from sheet_process import ScoreError, load_score, quantize_events_to_grid, suggest_grid_div
+from align import align_score
 
 
 def main(argv: Optional[list] = None) -> int:

@@ -9,7 +9,7 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 
-from core.sheet_process import Score
+from sheet_process import Score
 
 
 def log(msg: str = "") -> None:
@@ -19,8 +19,8 @@ def log(msg: str = "") -> None:
 @dataclass
 class Alignment:
     bpm: float
-    offset_s: float      # instante (s) no áudio correspondente ao quarter 0 da partitura
-    quality: float       # fração de notas da partitura com onset casado (0..1)
+    offset_s: float      # instante (s) no Ã¡udio correspondente ao quarter 0 da partitura
+    quality: float       # fraÃ§Ã£o de notas da partitura com onset casado (0..1)
     method: str          # "manual" ou "auto"
 
 
@@ -76,14 +76,14 @@ def find_offset(onsets: np.ndarray, sc: Score, bpm: float, tol: float = 0.04,
         return 0.0, 0.0
     spq = 60.0 / bpm  # segundos por quarter
     note_q = np.array([float(e.quarter) for e in sc.events])
-    # amostra só um subconjunto espaçado para velocidade (mantém a forma da densidade)
+    # amostra sÃ³ um subconjunto espaÃ§ado para velocidade (mantÃ©m a forma da densidade)
     if len(note_q) > 3000:
         note_q = np.sort(np.random.default_rng(0).choice(note_q, 3000, replace=False))
     note_q = np.unique(note_q)
 
     best_off, best_q = 0.0, -1.0
     offs = np.arange(-window, window + step / 2, step)
-    # avaliação em duas passadas: gross (step*4) e fina em volta do melhor
+    # avaliaÃ§Ã£o em duas passadas: gross (step*4) e fina em volta do melhor
     for cur_step, cur_offs in ((step * 4, offs), (step, None)):
         if cur_offs is None:
             cur_offs = np.arange(best_off - cur_step * 4, best_off + cur_step * 4 + 1e-9, cur_step)
@@ -100,7 +100,7 @@ def align_score(sc: Score, mix_wav_path, auto: bool, bpm_override: Optional[floa
 
     bpm = float(bpm_override or sc.bpm or 0.0)
     if bpm <= 0 and not auto:
-        raise ValueError("A partitura não informa BPM e nenhum --bpm foi dado. "
+        raise ValueError("A partitura nÃ£o informa BPM e nenhum --bpm foi dado. "
                          "Passe --bpm ou use --auto-align.")
 
     if not auto:
@@ -120,7 +120,7 @@ def align_score(sc: Score, mix_wav_path, auto: bool, bpm_override: Optional[floa
         base = results.get(round(bpm, 3)) or (bpm, 0.0, 0.0)
         cand, off, q = max(results.values(), key=lambda r: r[2])
         if q - base[2] > 0.15:
-            log(f"      AVISO: o BPM {bpm:g} da partitura casou melhor com o áudio como {cand:g} "
+            log(f"      AVISO: o BPM {bpm:g} da partitura casou melhor com o Ã¡udio como {cand:g} "
                 "(metade/dobro). Use --bpm para fixar outro valor.")
         else:
             cand, off, q = base
@@ -128,6 +128,6 @@ def align_score(sc: Score, mix_wav_path, auto: bool, bpm_override: Optional[floa
     else:
         bpm = estimate_bpm(y, sr, sc, None)
         off, q = find_offset(onsets, sc, bpm)
-    # soma o offset manual informado (ajuste fino do usuário)
+    # soma o offset manual informado (ajuste fino do usuÃ¡rio)
     off += offset_ms / 1000.0
     return Alignment(bpm=bpm, offset_s=off, quality=q, method="auto")

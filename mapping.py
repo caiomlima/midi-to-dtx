@@ -5,18 +5,18 @@ from __future__ import annotations
 
 from typing import Dict, Optional
 
-# Canais (lanes) do DTX (idênticos aos do mp4_to_dtx.py)
+# Canais (lanes) do DTX (idÃªnticos aos do mp4_to_dtx.py)
 HHC, SD, BD, HT, LT, CY, FT, HHO, RD, LC = "11", "12", "13", "14", "15", "16", "17", "18", "19", "1A"
 LANES = [HHC, SD, BD, HT, LT, CY, FT, HHO, RD, LC]
 
 LANE_SAMPLE = {HHC: "hihat_close", SD: "snare", BD: "kick", HT: "high_tom", LT: "low_tom",
                CY: "crash", FT: "floor_tom", HHO: "hihat_open", RD: "ride", LC: "crash"}
 LANE_PAN = {HHC: -40, HHO: -40, SD: 0, BD: 0, HT: -25, LT: 15, FT: 35, CY: 45, RD: 55, LC: -55}
-LANE_NAME = {HHC: "HH fechado", SD: "Caixa", BD: "Bumbo", HT: "Tom agudo", LT: "Tom médio",
-             CY: "Prato (crash)", FT: "Tom de chão", HHO: "HH aberto", RD: "Ride", LC: "Crash esq."}
+LANE_NAME = {HHC: "HH fechado", SD: "Caixa", BD: "Bumbo", HT: "Tom agudo", LT: "Tom mÃ©dio",
+             CY: "Prato (crash)", FT: "Tom de chÃ£o", HHO: "HH aberto", RD: "Ride", LC: "Crash esq."}
 
 # --------------------------------------------------------------------------- General MIDI drum map
-# pitch MIDI -> lane DTX. Comentários com o nome GM oficial.
+# pitch MIDI -> lane DTX. ComentÃ¡rios com o nome GM oficial.
 GM_DRUM_MAP: Dict[int, str] = {
     # Bumbo
     35: BD,   # Acoustic Bass Drum

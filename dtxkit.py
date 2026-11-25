@@ -19,11 +19,11 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 import soundfile as sf
 
-from core.mapping import (LANES, LANE_NAME, LANE_PAN, LANE_SAMPLE,
+from mapping import (LANES, LANE_NAME, LANE_PAN, LANE_SAMPLE,
                      HHC, SD, BD, HT, LT, CY, FT, HHO, RD, LC)
 
 SR = 44100
-TICKS_PER_BEAT = 48  # 48 ticks por tempo -> 192 por compasso 4/4 (resolução do DTXCreator)
+TICKS_PER_BEAT = 48  # 48 ticks por tempo -> 192 por compasso 4/4 (resoluÃ§Ã£o do DTXCreator)
 
 
 class CmdError(RuntimeError):
@@ -43,7 +43,7 @@ def run(cmd: List, capture: bool = False) -> str:
     try:
         r = subprocess.run(cmd, check=True, capture_output=True, text=True)
     except FileNotFoundError:
-        raise CmdError(f"Não encontrei '{cmd[0]}'. Instale o ffmpeg e deixe-o no PATH.")
+        raise CmdError(f"NÃ£o encontrei '{cmd[0]}'. Instale o ffmpeg e deixe-o no PATH.")
     except subprocess.CalledProcessError as e:
         raise CmdError(f"Falha ao executar: {' '.join(cmd[:6])} ...\n{(e.stderr or '')[-1500:]}")
     return r.stdout
@@ -81,23 +81,23 @@ def separate_drums(wav_path: Path, work: Path, model_name: str, device: str, shi
                    force: bool = False) -> Tuple[Path, Path]:
     drums_p, rest_p = work / "drums.wav", work / "no_drums.wav"
     if drums_p.exists() and rest_p.exists() and not force:
-        log("  (reaproveitando stems já separados; use --force para refazer)")
+        log("  (reaproveitando stems jÃ¡ separados; use --force para refazer)")
         return drums_p, rest_p
     try:
         import torch
         from demucs.pretrained import get_model
         from demucs.apply import apply_model
     except ImportError as e:
-        die(f"torch/demucs não encontrados ({e}). Instale com: pip install demucs")
+        die(f"torch/demucs nÃ£o encontrados ({e}). Instale com: pip install demucs")
 
     audio, sr = sf.read(str(wav_path), dtype="float32", always_2d=True)
     wav = torch.from_numpy(np.ascontiguousarray(audio.T))
     model = get_model(model_name)
     model.eval()
     if sr != model.samplerate:
-        die(f"O modelo {model_name} espera {model.samplerate} Hz, mas o áudio está em {sr} Hz.")
+        die(f"O modelo {model_name} espera {model.samplerate} Hz, mas o Ã¡udio estÃ¡ em {sr} Hz.")
     if "drums" not in model.sources:
-        die(f"O modelo {model_name} não tem o stem 'drums' (stems: {model.sources}).")
+        die(f"O modelo {model_name} nÃ£o tem o stem 'drums' (stems: {model.sources}).")
 
     ref = wav.mean(0)
     mean, std = ref.mean(), ref.std() + 1e-8
@@ -170,7 +170,7 @@ def write_dtx(path: Path, *, title: str, artist: str, bpm: float, level: int, ch
         L.append(f"#0005A: 01")
     for (m, ch) in sorted(chart):
         L.append(f"#{measure_id(m)}{ch}: {pack_line(sorted(chart[(m, ch)]), bar_ticks, ch)}")
-    # chip invisível no fim: garante que o chart só termine depois do fim do áudio
+    # chip invisÃ­vel no fim: garante que o chart sÃ³ termine depois do fim do Ã¡udio
     L.append(f"#{measure_id(end_measure)}33: {BD}")
     with open(path, "w", encoding=encoding, newline="\r\n") as fh:
         fh.write("\n".join(L) + "\n")
@@ -289,7 +289,7 @@ def prepare_samples(dest: Path, user_dir: Optional[Path], work: Path) -> Dict[st
                     cache.write_bytes(r.read())
             zf = zipfile.ZipFile(io.BytesIO(cache.read_bytes()))
         except Exception as e:
-            log(f"  (não consegui baixar o template de samples: {e}; usando samples sintéticos)")
+            log(f"  (nÃ£o consegui baixar o template de samples: {e}; usando samples sintÃ©ticos)")
         for n in list(missing):
             if zf is not None:
                 member = next((m for m in zf.namelist() if m.endswith(f"/drums/{n}.ogg")), None)

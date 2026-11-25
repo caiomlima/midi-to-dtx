@@ -19,12 +19,12 @@ NPS_ANCHORS: List[Tuple[float, float]] = [
     (10.0, 9.0),
 ]
 
-# Peso das rajadas: burst de 1s muito acima da média pesa até PEAK_WEIGHT níveis.
+# Peso das rajadas: burst de 1s muito acima da mÃ©dia pesa atÃ© PEAK_WEIGHT nÃ­veis.
 PEAK_WEIGHT = 0.35
-PEAK_RATIO_LO = 1.6     # razão pico/média a partir da qual começa a pesar
-PEAK_RATIO_SPAN = 1.4   # largura da rampa (em razão pico/média)
+PEAK_RATIO_LO = 1.6     # razÃ£o pico/mÃ©dia a partir da qual comeÃ§a a pesar
+PEAK_RATIO_SPAN = 1.4   # largura da rampa (em razÃ£o pico/mÃ©dia)
 
-# Peso da complexidade rítmica (subdivisões e acordes simultâneos).
+# Peso da complexidade rÃ­tmica (subdivisÃµes e acordes simultÃ¢neos).
 CX_WEIGHT = 0.45
 TRIP_WEIGHT = 0.7       # tercinas contam menos que 16ths puros
 CHORD_WEIGHT = 0.3      # flams/acordes contam menos ainda
@@ -146,7 +146,7 @@ def parse_level_arg(value: str) -> int:
     try:
         lv = int(value)
     except ValueError:
-        raise SystemExit(f"--level precisa ser 'auto' ou um número 1-999; recebi '{value}'.")
+        raise SystemExit(f"--level precisa ser 'auto' ou um nÃºmero 1-999; recebi '{value}'.")
     if not (1 <= lv <= 999):
         raise SystemExit(f"--level precisa estar entre 1 e 999 (DTXCreator limita a 999); recebi {lv}.")
     return lv
